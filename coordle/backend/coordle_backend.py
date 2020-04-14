@@ -1,6 +1,4 @@
 '''
-lalalalal
-
 This module contains the backend for Coordle.
 
 Classes:
@@ -21,7 +19,6 @@ Classes:
 '''
 import numpy as np
 import pandas as pd
-# from utils import clean_text
 from coordle.utils import clean_text
 from typing import Iterable, Union, Callable
 import nltk
@@ -127,7 +124,10 @@ class CordDoc:
 
         self.len = len(tokens)
 
-        uniques, counts = np.unique(tokens, return_counts=True)
+        temp = pd.value_counts(tokens)
+        uniques = temp.index.values
+        counts = temp.values
+
         self.wordcounts = {word:count for word, count in zip(uniques, counts)}
         return self, uniques
 
@@ -169,6 +169,11 @@ class RecursiveDescentParser:
             self.punctuation = PUNCTUATION.replace('(','').replace(')','')
 
     def get_logical_querytokens(self, query: str):
+        '''
+        Given a string, get query tokens in a deque. This does not assert
+        that the query is right, however if it ends up with an empty string
+        after cleaning it will return None.  
+        '''
         query = re.sub(f'[{self.punctuation}]','',query)
         if len(query) == 0:
             return None
@@ -344,10 +349,6 @@ class RecursiveDescentParser:
                 q2.append(clean_text(token, return_list=False))
         return q2
 
-    # TODO: Think about edge cases 
-    # TODO: Maybe use a explicit stack implementation instead of implicit 
-    #       to make operator preceedence more modifiable.
-
     def _preprocess_query(self, query: str) -> tuple:
         '''
         Preprocesses the query before parsing 
@@ -382,7 +383,9 @@ class RecursiveDescentParser:
 
     def search(self, query: Union[str, deque]) -> tuple:
         '''
-        TODO: Docs
+        Given a string or deque, parse the thing. Returns None, None, errmsgs
+        if string is malformatted. If given deque, it does no checks whether 
+        query is right, so use it carefully. 
         '''
         if type(query) == str:
             queryqueue, errmsgs = self._preprocess_query(query)
@@ -417,7 +420,9 @@ class RecursiveDescentParser:
     
     def parse(self, q: deque) -> set:
         '''
-        TODO: Docs
+        Given a deque of querytokens, parse it. E.g.
+        deque([cat,AND,dog,OR,deque([bear,NOT,panda]),OR,horse])
+        The inner deques is when there are parenthesis. 
         '''
         if len(q) == 0:
             return set()
@@ -427,7 +432,8 @@ class RecursiveDescentParser:
 
     def _parse_difference(self, q: deque) -> set:
         '''
-        TODO: Docs
+        Checks for difference operator ('NOT' by default), this
+        operator has lowest preceedence
         '''
         results = self._parse_and(q)
         
@@ -443,7 +449,8 @@ class RecursiveDescentParser:
 
     def _parse_and(self, q: deque) -> set:
         '''
-        TODO: Docs
+        Checks for intersection operator ('AND' by default), this
+        operator has higher preceedence that the difference operator 
         '''
         results = self._parse_or(q)
         
@@ -459,7 +466,8 @@ class RecursiveDescentParser:
 
     def _parse_or(self, q: deque) -> set:
         '''
-        TODO: Docs
+        Checks for intersection operator ('OR' by default), this
+        operator has highest preceedence. 
         '''
         results = self._parse_term(q)
     
@@ -475,7 +483,7 @@ class RecursiveDescentParser:
 
     def _parse_term(self, q: deque) -> set:
         '''
-        TODO: Docs
+        Checks for term, this is the function that fetches the uids
         '''
         curr_token = q.popleft()
 
@@ -494,9 +502,7 @@ class RecursiveDescentParser:
         '''
         Given a set CordDoc objects and a token, calculate TF-IDF relevance for
         the objects with respect to the token and then store the value inside 
-        the objects.
-
-        The values should be reset to zero after a search
+        uidcache. 
         '''    
         for doc in docs:
             if doc.uid not in self.uidcache:
@@ -605,18 +611,6 @@ class Index:
         for uid_, title_, text_ in tqdm(zip(uids, titles, texts), 
                                         desc='Adding to index', **tqdm_args):
             self.add(uid_, title_, text_)
-
-    def extend_with_df(self, df: pd.DataFrame, uid: str, title: str, 
-                       text: str, use_multiprocessing: bool=False, 
-                       workers: int=1, verbose: bool=True, 
-                       cleaner: Callable=None):
-        '''Heh'''
-
-    def get_doc(self, uid: str):
-        '''
-        Get document given uid
-        '''
-        return self.uid_docmap[uid]
 
     def search(self, query: Union[str, list], verbose=False) -> tuple:
         '''

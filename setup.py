@@ -23,7 +23,6 @@ setuptools.setup(
         'numpy>=1.17.2',
         'pandas>=0.25.1',
         'scispacy>=0.2.4',
-        'tensorflow>=2.1.0',
         'scipy>=1.4.1',
         'numba>=0.45.1',
         'gensim>=3.8.1',

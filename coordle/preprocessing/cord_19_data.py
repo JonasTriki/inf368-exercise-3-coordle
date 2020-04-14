@@ -21,9 +21,14 @@ from spacy_langdetect import LanguageDetector
 
 class CORD19Data():
     '''
-    TODO: Docs
+    CORD-19 data preprocessing class
     '''
     def __init__(self, data_dir: str):
+        '''Initializes a CORD-19 data preprocessing class
+        
+        Args:
+            data_dir: Raw data directory
+        '''
         self.data_dir = data_dir
         
         # Initialize NLP model
@@ -33,9 +38,7 @@ class CORD19Data():
         self.nlp_words_to_check = 100
     
     def _load_metadata(self) -> pd.DataFrame:
-        '''
-        TODO: Docs
-        '''
+        '''Loads metadata.csv from raw data into Pandas DataFrame'''
         print('Loading metadata...')
         
         cord_metadata_df = pd.read_csv(join_path(self.data_dir, 'metadata.csv'), dtype={
@@ -48,8 +51,14 @@ class CORD19Data():
         return cord_metadata_df
     
     def _clean_metadata(self, metadata_df: pd.DataFrame) -> pd.DataFrame:
-        '''
-        TODO: Docs
+        '''Cleans given metadata Pandas DataFrame by first
+        removing duplicates, then dropping articles without metadata.
+        
+        Args:
+            metadata_df: Metadata Pandas DataFrame to clean
+        
+        Returns:
+            metadata_df: Cleaned metadata Pandas DataFrame
         '''
         print('Cleaning metadata...')
         
@@ -63,17 +72,29 @@ class CORD19Data():
         return metadata_df
     
     def _del_substring_by_indices(self, text: str, rem_indices_pairs: list):
+        '''Deletes substring by indices
+        
+        Args:
+            text: Text to delete from
+            rem_indices_pairs: Pairs (start, end) of indices to remove from
+        
+        Returns:
+            new_text: Text where indices pairs have been removed
         '''
-        TODO: Docs
-        '''                                                                         
         rem_indices = set()
         for pairs in rem_indices_pairs:
             rem_indices.update(range(*pairs))
         return ''.join([c for i, c in enumerate(text) if i not in rem_indices])
 
     def _parse_metadata(self, metadata_df: pd.DataFrame) -> pd.DataFrame:
-        '''
-        TODO: Docs
+        '''Parses metadata Pandas DataFrame
+        
+        Args:
+            metadata_df: Metadata Pandas DataFrame to parse
+        
+        Returns:
+            cord_df: Pandas DataFrame consisting of columns from metadata Pandas DataFrame
+                      and content from article json files.
         '''
         print('Parsing metadata...')
         
@@ -156,8 +177,13 @@ class CORD19Data():
         return pd.DataFrame(cord_dict)
 
     def _remove_duplicates(self, df: pd.DataFrame):
-        '''
-        TODO: Docs
+        '''Removes duplicate rows with the same abstract/body_text
+        
+        Args:
+            df: DataFrame to remove duplicates from
+        
+        Returns:
+            df: DataFrame without duplicates
         '''
         print('Removing duplicates...')
         df.drop_duplicates(['abstract', 'body_text'], inplace=True)
@@ -166,8 +192,13 @@ class CORD19Data():
         return df
     
     def _extract_language(self, text: str) -> str:
-        '''
-        TODO: Docs
+        '''Extracts the language from the given text using spaCy
+        
+        Args:
+            text: Text to extract language from
+        
+        Returns:
+            lang: Predicted language of text
         '''
         # Extract language using spaCy
 
@@ -177,8 +208,13 @@ class CORD19Data():
         return lang
     
     def _perform_lang_detection(self, df: pd.DataFrame):
-        '''
-        TODO: Docs
+        '''Performs language detection on the body_text column of the Pandas DataFrame
+        
+        Args:
+            df: Pandas DataFrame to process
+            
+        Returns:
+            df: Pandas DataFrame with additional language column
         '''
         print('Performing language detection...')
         
