@@ -17,5 +17,5 @@ Possible imports
 ```python
 from coordle.backend import Index, QueryAppenderIndex, CordDoc, RecursiveDescentParser
 from coordle.preprocessing import CORD19Data
-from coordle.utils import EpochSaver, TokenizedSkipgramDataGenerator, clean_text, fix_authors, tokenize_sets
+from coordle.utils import EpochSaver, clean_text, fix_authors
 ```
