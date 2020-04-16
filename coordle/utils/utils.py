@@ -101,7 +101,7 @@ def fix_authors(authors: str, authors_sep: str = ';', name_sep: str = ','):
     Returns:
         fixed_authors: Fixed authors string
     '''
-    authors_split = authors.split(authors_sep)
+    authors_split = str(authors).split(authors_sep)
     if len(authors_split) > 2:
 
         # Use first authors last name + et al.
