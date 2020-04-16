@@ -10,7 +10,7 @@ pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.4/e
 
 then 
 ```
-pip install git@github.com:JonasTriki/inf368-exercise-3-coordle.git
+pip install git+https://github.com/JonasTriki/inf368-exercise-3-coordle.git
 ```
 
 Possible imports
